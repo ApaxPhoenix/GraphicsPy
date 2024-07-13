@@ -20,8 +20,6 @@ Follow these steps to get started with GraphicsPy:
     pip install -r requirements.txt
     ```
 
-    Ensure your `requirements.txt` file includes `numpy` and `matplotlib`.
-
 2. **Write Your Graphics Application**
 
     Create a Python file (e.g., `animation.py`) and start coding:
