@@ -19,7 +19,7 @@ class RootPart:
     ) -> None:
         """Initialize RootPart object."""
         self.x: np.ndarray = np.array([x, y], dtype=np.float32)
-        self.target_x: np.ndarray = np.array([x, y], dtype=np.float32)
+        self.targets: List[np.ndarray] = [np.array([x, y], dtype=np.float32)]
         self.angle: np.float32 = np.float32(angle)
         self.target_angle: np.float32 = np.mod(np.add(np.float32(angle), 360), 360)
         self.size: Union[int, np.ndarray] = size
@@ -28,20 +28,38 @@ class RootPart:
         self.zindex: int = zindex
         self.physics: Callable = physics
         self.current_step: int = 0
+        self.translation_progress: float = 0.0
+        self.wait_steps: int = 0
 
-    def translate(self, new_x: int, new_y: int) -> None:
-        """Translate to new position."""
-        self.target_x = np.array([new_x, new_y], dtype=np.float32)
+    def translate(self, new_positions: List[int]) -> None:
+        """Translate to new positions sequentially."""
+        new_targets = [np.array(new_positions[i:i + 2], dtype=np.float32) for i in range(0, len(new_positions), 2)]
+        self.targets.extend(new_targets)
         self.current_step = 0
+        self.translation_progress = 0.0
 
     def rotate(self, angle: int) -> None:
         """Rotate to new angle."""
         self.target_angle = np.mod(np.add(self.angle, np.float32(angle)), 360)
         self.current_step = 0
 
+    def wait(self, steps: int) -> None:
+        """Wait for a specified number of steps."""
+        self.wait_steps = steps
+
     def update(self, progress: float) -> None:
         """Update position and angle based on progress."""
-        self.x = self.physics(self.x, self.target_x, progress)
+        if self.wait_steps > 0:
+            self.wait_steps -= 1
+            return
+
+        if self.targets:
+            self.translation_progress = np.add(self.translation_progress, progress)
+            self.x = self.physics(self.x, self.targets[0], self.translation_progress)
+            if np.allclose(self.x, self.targets[0], atol=1.0):
+                self.targets.pop(0)
+                self.translation_progress = 0.0  # Reset progress for the next target
+
         self.angle = np.mod(self.physics(np.array([self.angle]), np.array([self.target_angle]), progress)[0], 360)
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
@@ -64,9 +82,9 @@ class Square(RootPart):
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
         """Draw square on ImageDraw object."""
-        half_size: np.ndarray = np.divide(self.size, 2).astype(np.int32)
-        top_left: np.ndarray = np.subtract(self.x, half_size)
-        bottom_right: np.ndarray = np.add(self.x, half_size)
+        half_size = np.divide(self.size, 2).astype(np.int32)
+        top_left = np.subtract(self.x, half_size).astype(np.int32)
+        bottom_right = np.add(self.x, half_size).astype(np.int32)
         drawer.rectangle([tuple(top_left), tuple(bottom_right)], fill=self.color)
 
 
@@ -87,9 +105,9 @@ class Rectangle(RootPart):
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
         """Draw rectangle on ImageDraw object."""
-        half_size: np.ndarray = np.divide(self.size, 2).astype(np.int32)
-        top_left: np.ndarray = np.subtract(self.x, half_size)
-        bottom_right: np.ndarray = np.add(self.x, half_size)
+        half_size = np.divide(self.size, 2).astype(np.int32)
+        top_left = np.subtract(self.x, half_size).astype(np.int32)
+        bottom_right = np.add(self.x, half_size).astype(np.int32)
         drawer.rectangle([tuple(top_left), tuple(bottom_right)], fill=self.color)
 
 
@@ -108,10 +126,10 @@ class Triangle(RootPart):
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
         """Draw triangle on ImageDraw object."""
-        half_size: np.ndarray = np.divide(self.size, 2).astype(np.int32)
-        top_point: np.ndarray = np.add(self.x, [0, -half_size])
-        left_point: np.ndarray = np.add(self.x, [-half_size, half_size])
-        right_point: np.ndarray = np.add(self.x, [half_size, half_size])
+        half_size = np.divide(self.size, 2).astype(np.int32)
+        top_point = np.add(self.x, [0, -half_size])
+        left_point = np.add(self.x, [-half_size, half_size])
+        right_point = np.add(self.x, [half_size, half_size])
         drawer.polygon([tuple(top_point), tuple(left_point), tuple(right_point)], fill=self.color)
 
 
@@ -130,8 +148,8 @@ class Circle(RootPart):
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
         """Draw circle on ImageDraw object."""
-        top_left: np.ndarray = np.subtract(self.x, self.radius).astype(np.int32)
-        bottom_right: np.ndarray = np.add(self.x, self.radius).astype(np.int32)
+        top_left = np.subtract(self.x, self.radius).astype(np.int32)
+        bottom_right = np.add(self.x, self.radius).astype(np.int32)
         drawer.ellipse([tuple(top_left), tuple(bottom_right)], fill=self.color)
 
 
