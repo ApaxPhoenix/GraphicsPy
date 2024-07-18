@@ -30,6 +30,7 @@ class RootPart:
         self.current_step: int = 0
         self.translation_progress: float = 0.0
         self.wait_steps: int = 0
+        self.removed: bool = False
 
     def translate(self, new_positions: List[int]) -> None:
         """Translate to new positions sequentially."""
@@ -59,12 +60,22 @@ class RootPart:
             if np.allclose(self.x, self.targets[0], atol=1.0):
                 self.targets.pop(0)
                 self.translation_progress = 0.0  # Reset progress for the next target
-
         self.angle = np.mod(self.physics(np.array([self.angle]), np.array([self.target_angle]), progress)[0], 360)
+
+    def remove(self) -> None:
+        """Remove the object from memory."""
+        if not self.removed:
+            for attr in list(self.__dict__.keys()):
+                if attr != 'removed':
+                    delattr(self, attr)
+            self.removed = True
+            print(f"Object of type {self.__class__.__name__} has been removed from memory.")
+        else:
+            print(f"Object of type {self.__class__.__name__} has already been removed.")
 
     def draw(self, drawer: ImageDraw.ImageDraw) -> None:
         """Draw method to be overridden in subclasses."""
-        ...
+        pass
 
 
 class Square(RootPart):
