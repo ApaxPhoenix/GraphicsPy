@@ -26,7 +26,7 @@ Follow these steps to get started with GraphicsPy:
 
     ```python
     from physics import Physics
-    from graphics import (
+    from core import (
         PaintGrid,
         Rectangle,
         Square,
