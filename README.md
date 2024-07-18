@@ -44,11 +44,11 @@ Follow these steps to get started with GraphicsPy:
         grid.draw(rectangle)
         grid.draw(triangle)
         grid.draw(circle)
-        square.translate(450, 450)
-        rectangle.translate(300, 300)
-        triangle.translate(400, 400)
-        circle.translate(100, 100)
-        circle.translate(200, 200)
+        square.translate([450, 450])
+        rectangle.translate([300, 300])
+        triangle.translate([400, 400])
+        circle.translate([100, 100])
+        circle.translate([200, 200])
         grid.animate()
     ```
 
