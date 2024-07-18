@@ -1,8 +1,8 @@
 import numpy as np
 from typing import Union, Callable, List, Tuple
 from PIL import Image, ImageDraw
-from physics import Physics
-from render import Render
+from .physics import Physics
+from .render import Render
 
 
 class RootPart:
