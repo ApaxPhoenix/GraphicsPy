@@ -1,6 +1,6 @@
 # GraphicsPy: Simple Graphics Animation in Python
 
-GraphicsPy is a Python framework designed to simplify graphics animation. With an intuitive API and minimalist approach, GraphicsPy makes it easy to create and animate basic geometric shapes.
+GraphicsPy is a Python library designed to simplify graphics animation. With an natural API and minimalist approach, GraphicsPy makes it easy to create and animate basic geometric shapes.
 
 ## Features
 
